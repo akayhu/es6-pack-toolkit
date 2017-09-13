@@ -1,0 +1,23 @@
+{
+  "presets": [
+    ["es2015", {"modules": false}],
+    "stage-0"
+  ],
+  "plugins": [
+    "babel-plugin-transform-decorators-legacy"
+  ],
+  "env": {
+    "development": {
+      "presets": []
+    },
+    "production": {
+      "presets": []
+    },
+    "test": {
+      "presets": ["es2015", "stage-0"],
+      "plugins": [
+        "babel-plugin-transform-decorators-legacy"
+      ]
+    }
+  }
+}

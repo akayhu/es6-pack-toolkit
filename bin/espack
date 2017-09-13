@@ -1,0 +1,67 @@
+#!/usr/bin/env node
+
+const chalk = require('chalk');
+const program = require('commander');
+const path = require('path');
+const exists = require('fs').existsSync;
+const ora = require('ora');
+const Runner = require('../lib');
+const {
+  VIEW_ROOT,
+  STATIC_ROOT
+} = require('../lib/config');
+
+program
+  .version(require('../package').version)
+  .usage('<command>')
+  .description(chalk.cyan('espack toolkit'));
+
+program
+  .command('dev')
+  .description('develop 開發運行')
+  .option('-p, --port <value>', '運行的 port', 8888)
+  .option('-v, --views_folder <value>', 'Bundle 後所有 html 根目錄', VIEW_ROOT)
+  .option('-s, --static_folder <value>', 'Bundle 後所有靜態資源根目錄', STATIC_ROOT)
+  .action((env, options) => {
+    const spinner = ora('啟動中').start();
+    const server = new Runner({
+      dev: true,
+      port: env.port,
+      viewsFolder: env.views_folder,
+      staticFolder: env.static_folder,
+    });
+    server.start();
+    spinner.stop();
+  });
+
+program
+  .command('build')
+  .description('production 發佈生產')
+  .option('-d, --drop_console', '移除 console', true)
+  .option('-v, --views_folder <value>', 'Bundle 後所有 html 根目錄', VIEW_ROOT)
+  .option('-s, --static_folder <value>', 'Bundle 後所有靜態資源根目錄', STATIC_ROOT)
+  .action((env, options) => {
+    const spinner = ora('發佈中').start();
+    const build = new Runner({
+      dev: false,
+      dropConsole: env.drop_console || false,
+      viewsFolder: env.views_folder,
+      staticFolder: env.static_folder,
+      cb: (msg) => {
+        spinner.stop();
+        console.log(`times: ${msg}`);
+        console.log('Compiled successfully.');
+      },
+    });
+  });
+
+console.log();
+process.on('exit', () => {
+  console.log();
+});
+
+program
+  .parse(process.argv);
+
+// help
+if (program.args.length < 1) return program.help();
